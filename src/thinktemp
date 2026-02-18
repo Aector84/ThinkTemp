@@ -1,0 +1,162 @@
+##!/usr/bin/env python3
+
+import os
+import sys
+import time
+import termios
+import tty
+import select
+import subprocess
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.live import Live
+from rich.layout import Layout
+from rich.text import Text
+
+FAN_PATH = "/proc/acpi/ibm/fan"
+DEFAULT_THRESHOLD = 80
+WATCHDOG_TIMEOUT = 10
+
+console = Console()
+
+# CLEAN, GUARANTEED CORRECT HEADER
+ASCII_BANNER = Text(
+"""████████╗██╗  ██╗██╗███╗   ██╗██╗  ██╗████████╗███████╗███╗   ███╗██████╗
+╚══██╔══╝██║  ██║██║████╗  ██║██║ ██╔╝╚══██╔══╝██╔════╝████╗ ████║██╔══██╗
+   ██║   ███████║██║██╔██╗ ██║█████╔╝    ██║   █████╗  ██╔████╔██║██████╔╝
+   ██║   ██╔══██║██║██║╚██╗██║██╔═██╗    ██║   ██╔══╝  ██║╚██╔╝██║██╔═══╝
+   ██║   ██║  ██║██║██║ ╚████║██║  ██╗   ██║   ███████╗██║ ╚═╝ ██║██║
+   ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝""",
+style="bold cyan"
+)
+def require_root():
+    if os.geteuid() != 0:
+        console.print("[red]ThinkTemp must be run as root.[/red]")
+        sys.exit(1)
+
+
+def write_fan(command):
+    with open(FAN_PATH, "w") as f:
+        f.write(command)
+
+
+def get_fan_info():
+    with open(FAN_PATH) as f:
+        data = f.read().splitlines()
+    speed = [x for x in data if "speed" in x][0].split(":")[1].strip()
+    level = [x for x in data if "level" in x][0].split(":")[1].strip()
+    return speed, level
+
+
+def get_cpu_temp():
+    output = subprocess.check_output(["sensors"]).decode()
+    for line in output.splitlines():
+        if "Package id 0" in line:
+            return float(line.split("+")[1].split("°")[0])
+    return 0.0
+
+
+from rich.align import Align
+from rich.columns import Columns
+from rich.padding import Padding
+
+
+def build_layout(threshold):
+    temp = get_cpu_temp()
+    speed, level = get_fan_info()
+
+    if temp >= threshold:
+        write_fan("level auto")
+        level = "auto"
+
+    color = "green"
+    if temp >= 60:
+        color = "yellow"
+    if temp >= 75:
+        color = "red"
+
+    # Status Panel
+    status = Table.grid(padding=1)
+    status.add_row("CPU Temp:", f"[{color}]{temp:.1f} °C[/]")
+    status.add_row("Fan Speed:", f"{speed} RPM")
+    status.add_row("Fan Level:", level)
+    status.add_row("Fallback:", f"{threshold} °C")
+    status.add_row("Watchdog:", f"{WATCHDOG_TIMEOUT}s")
+
+    status_panel = Panel(status, title="Status", expand=False)
+
+    # Controls Panel
+    controls = Table.grid(padding=1)
+    controls.add_row("0", "Fan OFF")
+    controls.add_row("1–7", "Manual Levels")
+    controls.add_row("a", "Auto Mode")
+    controls.add_row("s", "Silent (1)")
+    controls.add_row("b", "Balanced (3)")
+    controls.add_row("p", "Performance (6)")
+    controls.add_row("q", "Quit + Restore Auto")
+
+    controls_panel = Panel(controls, title="Controls", expand=False)
+
+    # Body Columns (Centered)
+    body = Align.center(
+        Columns(
+            [status_panel, controls_panel],
+            equal=True,
+            expand=False
+        )
+    )
+
+    # Header (Centered)
+    header = Align.center(Panel(ASCII_BANNER, expand=False))
+
+    # Stack header + body
+    layout = Layout()
+    layout.split_column(
+        Layout(header, size=17),
+        Layout(Padding(body, (1, 0, 0, 0)))
+    )
+
+    return layout
+
+
+def main():
+    require_root()
+    write_fan(f"watchdog {WATCHDOG_TIMEOUT}")
+
+    threshold = DEFAULT_THRESHOLD
+
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    tty.setcbreak(fd)
+
+    try:
+        with Live(build_layout(threshold), refresh_per_second=4, screen=True) as live:
+            while True:
+                live.update(build_layout(threshold))
+
+                if select.select([sys.stdin], [], [], 0)[0]:
+                    key = sys.stdin.read(1)
+
+                    if key == "q":
+                        write_fan("level auto")
+                        break
+                    elif key == "a":
+                        write_fan("level auto")
+                    elif key in "01234567":
+                        write_fan(f"level {key}")
+                    elif key == "s":
+                        write_fan("level 1")
+                    elif key == "b":
+                        write_fan("level 3")
+                    elif key == "p":
+                        write_fan("level 6")
+
+                time.sleep(0.1)
+
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+
+if __name__ == "__main__":
+    main()
