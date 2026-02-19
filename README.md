@@ -4,6 +4,12 @@ A clean, production-grade ThinkPad fan controller TUI for Linux.
 
 ThinkTemp provides live temperature monitoring and manual fan control directly from your terminal.
 
+![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)
+![CachyOS](https://img.shields.io/badge/CachyOS-Official-blue)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-Supported-E95420?logo=ubuntu&logoColor=white)
+![Fedora](https://img.shields.io/badge/Fedora-Supported-294172?logo=fedora&logoColor=white)
+![Debian](https://img.shields.io/badge/Debian-Supported-A81D33?logo=debian&logoColor=white)
+
 ---
 
 ## ✨ Features
@@ -187,6 +193,46 @@ This is required because it writes to:
 | thinkpad_acpi | ✅ | Fan control |
 | Root access | ✅ | Hardware control |
 
+---
+
+## ⚠️ Known Issues
+
+- Requires root privileges (`sudo`)
+- Only compatible with ThinkPad systems supporting `thinkpad_acpi`
+- Some terminals may flicker when using alternate screen mode
+- Fan RPM may briefly display `0` when switching levels
+- Does not yet support non-ThinkPad hardware
+
+If you encounter issues, please open a GitHub issue with:
+
+- Your distro
+- Kernel version
+- Output of `cat /proc/acpi/ibm/fan`
+
+---
+
+## 🚀 Roadmap
+
+### 🔹 v1.1 (Planned)
+
+- [ ] Config file support (`~/.config/thinktemp/`)
+- [ ] Custom temperature threshold flag (`--threshold`)
+- [ ] Subtle version display in TUI header
+- [ ] Improved error handling for missing dependencies
+- [ ] Optional daemon mode
+- [ ] Temperature history graph panel
+- [ ] Better terminal resize handling
+
+---
+
+### 🔮 Future Ideas
+
+- Universal Linux fan control backend
+- Profile saving (Silent / Balanced / Performance)
+- AUR package
+- systemd service mode
+- Export metrics to JSON
+- Lightweight monitoring mode (`--monitor`)
 
 ---
 
