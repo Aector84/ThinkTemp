@@ -49,23 +49,7 @@ ThinkTemp aims to feel lightweight, modern, and production-ready — not experim
 
 ---
 
-## 🎥 Demo
 
-_Add a short GIF here showing fan level switching and live temperature updates._
-
-Example:
-
-```markdown
-![ThinkTemp Demo](assets/thinktemp-demo.gif)
-```
-
-A 5–10 second loop showing:
-- Changing fan levels
-- Switching to auto mode
-- Temperature rising/falling
-- Preset switching
-
-This greatly improves first impressions for new visitors.
 
 ---
 
