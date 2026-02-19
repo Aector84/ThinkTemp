@@ -1,8 +1,8 @@
 # 🧊 ThinkTemp
 
-A clean, production-grade ThinkPad fan controller TUI for Linux.
+A clean, production-grade **ThinkPad fan controller TUI** for Linux.
 
-ThinkTemp provides live temperature monitoring and manual fan control directly from your terminal.
+ThinkTemp provides live temperature monitoring and manual fan control directly from your terminal — safely, cleanly, and with kernel-level safeguards.
 
 ![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)
 ![CachyOS](https://img.shields.io/badge/CachyOS-Official-blue)
@@ -18,30 +18,31 @@ ThinkTemp provides live temperature monitoring and manual fan control directly f
 
 ## ✨ Features
 
-- Live CPU temperature display
-- Live fan RPM monitoring
-- Manual fan levels (0–7)
-- Fan OFF mode
-- Auto mode
-- Silent / Balanced / Performance presets
-- Overheat auto-fallback
-- Kernel watchdog safety
-- Clean centered TUI layout
-- Installable system utility
+- 🌡 Live CPU temperature display  
+- 🌀 Live fan RPM monitoring  
+- 🎛 Manual fan levels (0–7)  
+- ❄ Fan OFF mode  
+- 🤖 Auto mode  
+- 🔇 Silent / ⚖ Balanced / 🚀 Performance presets  
+- 🔥 Overheat auto-fallback protection  
+- 🛡 Kernel watchdog safety  
+- 🧭 Clean centered TUI layout  
+- 📦 Installable system utility  
 
 ---
 
 ## ⚠️ Requirements
 
 - ThinkPad laptop
-- `thinkpad_acpi` with `fan_control=1`
 - Linux
+- `thinkpad_acpi` with `fan_control=1`
+- `lm-sensors`
 - `python-rich`
 - Root privileges
 
 ---
 
-## 📦 Installation
+# 📦 Installation
 
 Clone the repository:
 
@@ -56,147 +57,88 @@ Run installer:
 ./install.sh
 ```
 
-Then launch:
+Launch:
 
 ```bash
 sudo thinktemp
 ```
+
 ---
 
-## 📦 Dependencies
+# 📦 Dependencies
 
-ThinkTemp requires the following components:
+## 🐍 Python
 
-### 🐍 Python
 - Python **3.8+** (3.9+ recommended)
 
 Check your version:
+
 ```bash
 python3 --version
 ```
 
 ---
 
-### 🎨 python-rich
+## 🎨 python-rich
+
 Used for rendering the terminal UI.
 
-**Arch / CachyOS:**
+**Arch / CachyOS**
 ```bash
 sudo pacman -S python-rich
 ```
 
-**Debian / Ubuntu / Mint / Pop!_OS:**
+**Debian / Ubuntu**
 ```bash
 sudo apt install python3-rich
 ```
 
-**Fedora:**
+**Fedora**
 ```bash
 sudo dnf install python3-rich
 ```
 
 Or via pip:
+
 ```bash
 pip install rich
 ```
 
 ---
 
-### 🌡 lm-sensors
+## 🌡 lm-sensors
+
 Required for CPU temperature monitoring.
 
-**Arch:**
+**Arch**
 ```bash
 sudo pacman -S lm_sensors
 ```
 
-**Debian / Ubuntu:**
+**Debian / Ubuntu**
 ```bash
 sudo apt install lm-sensors
 ```
 
-**Fedora:**
+**Fedora**
 ```bash
 sudo dnf install lm_sensors
 ```
 
-After installation, detect sensors:
+Detect sensors:
 
 ```bash
 sudo sensors-detect
-```
-
-Verify output:
-
-```bash
 sensors
 ```
-## 🔧 ThinkPad Fan Control (Required for Manual Mode)
-
-ThinkTemp uses the `thinkpad_acpi` kernel module to access and control the ThinkPad fan.
-
-If manual fan control is not enabled, ThinkTemp cannot override fan speeds.
 
 ---
 
-## 🧪 Temporary Enable (Until Reboot)
-
-If fan control is not enabled, run:
-
-```bash
-sudo modprobe -r thinkpad_acpi
-sudo modprobe thinkpad_acpi fan_control=1
-
-```Verify it worked:
-
-cat /proc/acpi/ibm/fan
-
-```You should see:
-
-status: enabled
-💾 Enable Permanently (Fedora)
-1️⃣ Create the modprobe configuration file
-sudo nano /etc/modprobe.d/thinkpad_acpi.conf
-
-```Add this line inside the file:
-
-options thinkpad_acpi fan_control=1
-
-```Save and exit.
-
-```2️⃣ Rebuild initramfs (Required on Fedora)
-
-```Fedora uses dracut, so run:
-
-sudo dracut --force
-```3️⃣ Reboot
-sudo reboot
-```✅ Confirm After Reboot
-
-```After restarting, check:
-
-cat /proc/acpi/ibm/fan
-
-```If it shows:
-
-status: enabled
-
-Manual fan control is successfully enabled.
-
-⚠️ Important Notes
-
-Works only on supported ThinkPad models.
-
-Manual fan control overrides automatic thermal behavior.
-
-Setting fan speeds too low under heavy load may cause overheating.
----
-
-### 🖥 ThinkPad Kernel Support
+# 🔧 ThinkPad Fan Control (Required for Manual Mode)
 
 ThinkTemp depends on the `thinkpad_acpi` kernel module with manual fan control enabled.
 
-Verify support:
+Check support:
 
 ```bash
 cat /proc/acpi/ibm/fan
@@ -208,17 +150,35 @@ You must see:
 commands: level <0-7, auto, disengaged, full-speed>
 ```
 
-If not enabled:
+---
+
+## 🧪 Enable Temporarily (Until Reboot)
 
 ```bash
 sudo modprobe -r thinkpad_acpi
 sudo modprobe thinkpad_acpi fan_control=1
 ```
 
-To enable permanently across reboots, create:
+Verify:
+
+```bash
+cat /proc/acpi/ibm/fan
+```
+
+Expected output:
 
 ```
-/etc/modprobe.d/thinkpad.conf
+status: enabled
+```
+
+---
+
+## 💾 Enable Permanently (Fedora)
+
+Create the configuration file:
+
+```bash
+sudo nano /etc/modprobe.d/thinkpad_acpi.conf
 ```
 
 Add:
@@ -227,9 +187,33 @@ Add:
 options thinkpad_acpi fan_control=1
 ```
 
+Rebuild initramfs (Fedora uses dracut):
+
+```bash
+sudo dracut --force
+```
+
+Reboot:
+
+```bash
+sudo reboot
+```
+
+After reboot:
+
+```bash
+cat /proc/acpi/ibm/fan
+```
+
+You should see:
+
+```
+status: enabled
+```
+
 ---
 
-### 🔐 Root Privileges
+# 🔐 Root Privileges
 
 ThinkTemp must be run with elevated privileges:
 
@@ -245,206 +229,7 @@ This is required because it writes to:
 
 ---
 
-## 🧾 Summary
-
-| Component | Required | Purpose |
-|------------|----------|----------|
-| Python 3.8+ | ✅ | Runtime |
-| python-rich | ✅ | TUI rendering |
-| lm-sensors | ✅ | Temperature monitoring |
-| thinkpad_acpi | ✅ | Fan control |
-| Root access | ✅ | Hardware control |
-
----
-
-## 🛠 Troubleshooting
-
-If ThinkTemp does not work as expected, check the following:
-
----
-
-### ❓ ThinkTemp does not start
-
-Make sure you are running it with root privileges:
-
-```bash
-sudo thinktemp
-```
-
-If it still fails, verify the shebang line:
-
-```bash
-head -1 /usr/local/bin/thinktemp
-```
-
-It must be:
-
-```
-#!/usr/bin/env python3
-```
-
-If not, reinstall:
-
-```bash
-./install.sh
-```
-
----
-
-### ❓ `Manual fan control not available`
-
-Verify that your system supports manual fan control:
-
-```bash
-cat /proc/acpi/ibm/fan
-```
-
-You must see:
-
-```
-commands: level <0-7, auto, disengaged, full-speed>
-```
-
-If not enabled:
-
-```bash
-sudo modprobe -r thinkpad_acpi
-sudo modprobe thinkpad_acpi fan_control=1
-```
-
-To enable permanently:
-
-Create:
-
-```
-/etc/modprobe.d/thinkpad.conf
-```
-
-Add:
-
-```
-options thinkpad_acpi fan_control=1
-```
-
-Reboot afterward.
-
----
-
-### ❓ Temperatures not showing
-
-Ensure `lm-sensors` is installed:
-
-```bash
-sudo pacman -S lm_sensors        # Arch
-sudo apt install lm-sensors      # Debian/Ubuntu
-sudo dnf install lm_sensors      # Fedora
-```
-
-Then run:
-
-```bash
-sudo sensors-detect
-sensors
-```
-
-If `sensors` does not output CPU temperatures, ThinkTemp cannot display them.
-
----
-
-### ❓ Fan RPM shows 0
-
-If RPM shows `0`, the fan may be in passive or off state.  
-Try pressing:
-
-- `1–7` to manually set a fan level
-- `a` to return to auto mode
-
----
-
-### ❓ Screen flickers or appears blank
-
-Some terminals may behave differently with alternate screen mode.
-
-Try:
-
-- Resizing the terminal
-- Pressing `q` to exit
-- Running via:
-
-```bash
-sudo python3 src/thinktemp
-```
-
----
-
-### ❓ Command not found: thinktemp
-
-Ensure it is installed to `/usr/local/bin`:
-
-```bash
-ls /usr/local/bin/thinktemp
-```
-
-If missing:
-
-```bash
-./install.sh
-```
-
----
-
-If problems persist, open a GitHub issue and include:
-
-- Distro name
-- Kernel version (`uname -r`)
-- Output of `cat /proc/acpi/ibm/fan`
-- Output of `sensors`
-
-
----
-
-## ⚠️ Known Issues
-
-- Requires root privileges (`sudo`)
-- Only compatible with ThinkPad systems supporting `thinkpad_acpi`
-- Some terminals may flicker when using alternate screen mode
-- Fan RPM may briefly display `0` when switching levels
-- Does not yet support non-ThinkPad hardware
-
-If you encounter issues, please open a GitHub issue with:
-
-- Your distro
-- Kernel version
-- Output of `cat /proc/acpi/ibm/fan`
-
----
-
-## 🚀 Roadmap
-
-### 🔹 v1.1 (Planned)
-
-- [ ] Config file support (`~/.config/thinktemp/`)
-- [ ] Custom temperature threshold flag (`--threshold`)
-- [ ] Subtle version display in TUI header
-- [ ] Improved error handling for missing dependencies
-- [ ] Optional daemon mode
-- [ ] Temperature history graph panel
-- [ ] Better terminal resize handling
-
----
-
-### 🔮 Future Ideas
-
-- Universal Linux fan control backend
-- Profile saving (Silent / Balanced / Performance)
-- AUR package
-- systemd service mode
-- Export metrics to JSON
-- Lightweight monitoring mode (`--monitor`)
-
----
-
-## 🎮 Controls
+# 🎮 Controls
 
 | Key | Action |
 |-----|--------|
@@ -458,18 +243,130 @@ If you encounter issues, please open a GitHub issue with:
 
 ---
 
-## 🛡 Safety
+# 🛠 Troubleshooting
+
+## ThinkTemp does not start
+
+Run with root:
+
+```bash
+sudo thinktemp
+```
+
+Verify shebang:
+
+```bash
+head -1 /usr/local/bin/thinktemp
+```
+
+Must be:
+
+```
+#!/usr/bin/env python3
+```
+
+Reinstall if needed:
+
+```bash
+./install.sh
+```
+
+---
+
+## Manual fan control not available
+
+```bash
+cat /proc/acpi/ibm/fan
+```
+
+If missing commands:
+
+```bash
+sudo modprobe -r thinkpad_acpi
+sudo modprobe thinkpad_acpi fan_control=1
+```
+
+---
+
+## Temperatures not showing
+
+Ensure sensors works:
+
+```bash
+sensors
+```
+
+If empty, run:
+
+```bash
+sudo sensors-detect
+```
+
+---
+
+## Command not found: thinktemp
+
+Check installation:
+
+```bash
+ls /usr/local/bin/thinktemp
+```
+
+Reinstall if missing:
+
+```bash
+./install.sh
+```
+
+---
+
+# ⚠️ Known Issues
+
+- Requires root privileges
+- Only compatible with ThinkPad systems supporting `thinkpad_acpi`
+- Some terminals may flicker in alternate screen mode
+- RPM may briefly show `0` during transitions
+- No non-ThinkPad support (yet)
+
+---
+
+# 🚀 Roadmap
+
+## v1.1
+
+- [ ] Config file support (`~/.config/thinktemp/`)
+- [ ] Custom temperature threshold flag
+- [ ] Version display in header
+- [ ] Improved dependency detection
+- [ ] Optional daemon mode
+- [ ] Temperature history graph
+- [ ] Improved terminal resize handling
+
+---
+
+## Future Ideas
+
+- Universal Linux fan backend
+- Profile saving
+- AUR package
+- systemd service mode
+- JSON metrics export
+- Lightweight monitor mode
+
+---
+
+# 🛡 Safety
 
 ThinkTemp includes:
 
 - Temperature fallback (default 80°C)
 - Kernel watchdog timeout
-- Auto restore on exit
+- Automatic restore on exit
 
-Use manual fan control responsibly.
+Manual fan control overrides automatic thermal management. Use responsibly.
 
 ---
 
-## 📜 License
+# 📜 License
 
 MIT License
