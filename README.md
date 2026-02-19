@@ -12,6 +12,10 @@ ThinkTemp provides live temperature monitoring and manual fan control directly f
 
 ---
 
+<img width="1130" height="966" alt="Screenshot" src="https://github.com/user-attachments/assets/c839d3ef-62be-413e-ad58-7761d6fd87ab" />
+
+---
+
 ## ✨ Features
 
 - Live CPU temperature display
