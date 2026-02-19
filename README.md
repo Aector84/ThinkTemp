@@ -199,6 +199,152 @@ This is required because it writes to:
 
 ---
 
+## 🛠 Troubleshooting
+
+If ThinkTemp does not work as expected, check the following:
+
+---
+
+### ❓ ThinkTemp does not start
+
+Make sure you are running it with root privileges:
+
+```bash
+sudo thinktemp
+```
+
+If it still fails, verify the shebang line:
+
+```bash
+head -1 /usr/local/bin/thinktemp
+```
+
+It must be:
+
+```
+#!/usr/bin/env python3
+```
+
+If not, reinstall:
+
+```bash
+./install.sh
+```
+
+---
+
+### ❓ `Manual fan control not available`
+
+Verify that your system supports manual fan control:
+
+```bash
+cat /proc/acpi/ibm/fan
+```
+
+You must see:
+
+```
+commands: level <0-7, auto, disengaged, full-speed>
+```
+
+If not enabled:
+
+```bash
+sudo modprobe -r thinkpad_acpi
+sudo modprobe thinkpad_acpi fan_control=1
+```
+
+To enable permanently:
+
+Create:
+
+```
+/etc/modprobe.d/thinkpad.conf
+```
+
+Add:
+
+```
+options thinkpad_acpi fan_control=1
+```
+
+Reboot afterward.
+
+---
+
+### ❓ Temperatures not showing
+
+Ensure `lm-sensors` is installed:
+
+```bash
+sudo pacman -S lm_sensors        # Arch
+sudo apt install lm-sensors      # Debian/Ubuntu
+sudo dnf install lm_sensors      # Fedora
+```
+
+Then run:
+
+```bash
+sudo sensors-detect
+sensors
+```
+
+If `sensors` does not output CPU temperatures, ThinkTemp cannot display them.
+
+---
+
+### ❓ Fan RPM shows 0
+
+If RPM shows `0`, the fan may be in passive or off state.  
+Try pressing:
+
+- `1–7` to manually set a fan level
+- `a` to return to auto mode
+
+---
+
+### ❓ Screen flickers or appears blank
+
+Some terminals may behave differently with alternate screen mode.
+
+Try:
+
+- Resizing the terminal
+- Pressing `q` to exit
+- Running via:
+
+```bash
+sudo python3 src/thinktemp
+```
+
+---
+
+### ❓ Command not found: thinktemp
+
+Ensure it is installed to `/usr/local/bin`:
+
+```bash
+ls /usr/local/bin/thinktemp
+```
+
+If missing:
+
+```bash
+./install.sh
+```
+
+---
+
+If problems persist, open a GitHub issue and include:
+
+- Distro name
+- Kernel version (`uname -r`)
+- Output of `cat /proc/acpi/ibm/fan`
+- Output of `sensors`
+
+
+---
+
 ## ⚠️ Known Issues
 
 - Requires root privileges (`sudo`)
