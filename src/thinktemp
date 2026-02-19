@@ -12,15 +12,16 @@ from rich.table import Table
 from rich.live import Live
 from rich.layout import Layout
 from rich.text import Text
+from rich.align import Align
+from rich.columns import Columns
+from rich.padding import Padding
 
 FAN_PATH = "/proc/acpi/ibm/fan"
 DEFAULT_THRESHOLD = 80
-WATCHDOG_TIMEOUT = 10
 
 console = Console()
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
-# CLEAN, GUARANTEED CORRECT HEADER
 ASCII_BANNER = Text(
 """████████╗██╗  ██╗██╗███╗   ██╗██╗  ██╗████████╗███████╗███╗   ███╗██████╗
 ╚══██╔══╝██║  ██║██║████╗  ██║██║ ██╔╝╚══██╔══╝██╔════╝████╗ ████║██╔══██╗
@@ -30,13 +31,15 @@ ASCII_BANNER = Text(
    ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝""",
 style="bold cyan"
 )
+
+
 def require_root():
     if os.geteuid() != 0:
         console.print("[red]ThinkTemp must be run as root.[/red]")
         sys.exit(1)
 
 
-def write_fan(command):
+def write_fan(command: str):
     with open(FAN_PATH, "w") as f:
         f.write(command)
 
@@ -57,16 +60,13 @@ def get_cpu_temp():
     return 0.0
 
 
-from rich.align import Align
-from rich.columns import Columns
-from rich.padding import Padding
-
-
 def build_layout(threshold):
     temp = get_cpu_temp()
     speed, level = get_fan_info()
 
+    # Safety fallback
     if temp >= threshold:
+        write_fan("watchdog 0")
         write_fan("level auto")
         level = "auto"
 
@@ -76,17 +76,15 @@ def build_layout(threshold):
     if temp >= 75:
         color = "red"
 
-    # Status Panel
     status = Table.grid(padding=1)
     status.add_row("CPU Temp:", f"[{color}]{temp:.1f} °C[/]")
     status.add_row("Fan Speed:", f"{speed} RPM")
     status.add_row("Fan Level:", level)
     status.add_row("Fallback:", f"{threshold} °C")
-    status.add_row("Watchdog:", f"{WATCHDOG_TIMEOUT}s")
+    status.add_row("Watchdog:", "Disabled")
 
     status_panel = Panel(status, title="Status", expand=False)
 
-    # Controls Panel
     controls = Table.grid(padding=1)
     controls.add_row("0", "Fan OFF")
     controls.add_row("1–7", "Manual Levels")
@@ -98,19 +96,12 @@ def build_layout(threshold):
 
     controls_panel = Panel(controls, title="Controls", expand=False)
 
-    # Body Columns (Centered)
     body = Align.center(
-        Columns(
-            [status_panel, controls_panel],
-            equal=True,
-            expand=False
-        )
+        Columns([status_panel, controls_panel], equal=True, expand=False)
     )
 
-    # Header (Centered)
     header = Align.center(Panel(ASCII_BANNER, expand=False))
 
-    # Stack header + body
     layout = Layout()
     layout.split_column(
         Layout(header, size=17),
@@ -122,7 +113,9 @@ def build_layout(threshold):
 
 def main():
     require_root()
-    write_fan(f"watchdog {WATCHDOG_TIMEOUT}")
+
+    # Always disable watchdog at startup
+    write_fan("watchdog 0")
 
     threshold = DEFAULT_THRESHOLD
 
@@ -139,17 +132,28 @@ def main():
                     key = sys.stdin.read(1)
 
                     if key == "q":
+                        write_fan("watchdog 0")
                         write_fan("level auto")
                         break
+
                     elif key == "a":
+                        write_fan("watchdog 0")
                         write_fan("level auto")
+
                     elif key in "01234567":
+                        write_fan("watchdog 0")
                         write_fan(f"level {key}")
+
                     elif key == "s":
+                        write_fan("watchdog 0")
                         write_fan("level 1")
+
                     elif key == "b":
+                        write_fan("watchdog 0")
                         write_fan("level 3")
+
                     elif key == "p":
+                        write_fan("watchdog 0")
                         write_fan("level 6")
 
                 time.sleep(0.1)
@@ -158,10 +162,9 @@ def main():
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
-
 if __name__ == "__main__":
     if "--version" in sys.argv:
-        print("ThinkTemp v1.0.0")
+        print(f"ThinkTemp v{VERSION}")
         sys.exit(0)
 
     main()
