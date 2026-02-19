@@ -131,7 +131,65 @@ Verify output:
 ```bash
 sensors
 ```
+## 🔧 ThinkPad Fan Control (Required for Manual Mode)
 
+ThinkTemp uses the `thinkpad_acpi` kernel module to access and control the ThinkPad fan.
+
+If manual fan control is not enabled, ThinkTemp cannot override fan speeds.
+
+---
+
+## 🧪 Temporary Enable (Until Reboot)
+
+If fan control is not enabled, run:
+
+```bash
+sudo modprobe -r thinkpad_acpi
+sudo modprobe thinkpad_acpi fan_control=1
+
+```Verify it worked:
+
+cat /proc/acpi/ibm/fan
+
+```You should see:
+
+status: enabled
+💾 Enable Permanently (Fedora)
+1️⃣ Create the modprobe configuration file
+sudo nano /etc/modprobe.d/thinkpad_acpi.conf
+
+```Add this line inside the file:
+
+options thinkpad_acpi fan_control=1
+
+```Save and exit.
+
+```2️⃣ Rebuild initramfs (Required on Fedora)
+
+```Fedora uses dracut, so run:
+
+sudo dracut --force
+```3️⃣ Reboot
+sudo reboot
+```✅ Confirm After Reboot
+
+```After restarting, check:
+
+cat /proc/acpi/ibm/fan
+
+```If it shows:
+
+status: enabled
+
+Manual fan control is successfully enabled.
+
+⚠️ Important Notes
+
+Works only on supported ThinkPad models.
+
+Manual fan control overrides automatic thermal behavior.
+
+Setting fan speeds too low under heavy load may cause overheating.
 ---
 
 ### 🖥 ThinkPad Kernel Support
