@@ -10,6 +10,77 @@ ThinkTemp provides live temperature monitoring and manual fan control directly f
 ![Fedora](https://img.shields.io/badge/Fedora-Supported-294172?logo=fedora&logoColor=white)
 ![Debian](https://img.shields.io/badge/Debian-Supported-A81D33?logo=debian&logoColor=white)
 
+
+# 🧊 ThinkTemp
+**Terminal fan controller & temperature monitor for ThinkPad laptops on Linux**
+
+A clean, production-grade ThinkPad fan controller TUI with live temperature monitoring and manual fan control — built for clarity, safety, and performance.
+
+---
+
+## 📌 Table of Contents
+
+1. [✨ Features](#-features)
+2. [⚠️ Requirements](#️-requirements)
+3. [📦 Installation](#-installation)
+4. [📦 Dependencies](#-dependencies)
+5. [🔧 ThinkPad Fan Control Setup](#-thinkpad-fan-control-required-for-manual-mode)
+6. [🎮 Controls](#-controls)
+7. [🛠 Troubleshooting](#-troubleshooting)
+8. [⚠️ Known Issues](#️-known-issues)
+9. [🚀 Roadmap](#-roadmap)
+10. [🛡 Safety](#-safety)
+11. [📜 License](#-license)
+
+---
+
+## 🎯 Why ThinkTemp?
+
+There are other ThinkPad fan control utilities available, but ThinkTemp focuses on:
+
+- 🧭 Clean, centered terminal UI
+- ⚡ Instant manual control (0–7)
+- 🛡 Built-in safety fallbacks
+- 🔥 Overheat protection
+- 🎛 Simple preset modes (Silent / Balanced / Performance)
+- 📦 Easy installation as a system utility
+
+ThinkTemp aims to feel lightweight, modern, and production-ready — not experimental.
+
+---
+
+## 🎥 Demo
+
+_Add a short GIF here showing fan level switching and live temperature updates._
+
+Example:
+
+```markdown
+![ThinkTemp Demo](assets/thinktemp-demo.gif)
+```
+
+A 5–10 second loop showing:
+- Changing fan levels
+- Switching to auto mode
+- Temperature rising/falling
+- Preset switching
+
+This greatly improves first impressions for new visitors.
+
+---
+
+## 🏷 Project Overview
+
+ThinkTemp directly interfaces with the Linux `thinkpad_acpi` kernel module to provide safe, manual fan control on supported ThinkPad hardware.
+
+It is designed for users who:
+
+- Want precise thermal control
+- Prefer terminal-based tools
+- Need a lightweight alternative to background daemons
+- Value safety mechanisms while overriding automatic fan curves
+
+
 ---
 
 <img width="1130" height="966" alt="Screenshot" src="https://github.com/user-attachments/assets/c839d3ef-62be-413e-ad58-7761d6fd87ab" />
