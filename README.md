@@ -10,6 +10,13 @@ ThinkTemp provides live temperature monitoring and manual fan control directly f
 ![Fedora](https://img.shields.io/badge/Fedora-Supported-294172?logo=fedora&logoColor=white)
 ![Debian](https://img.shields.io/badge/Debian-Supported-A81D33?logo=debian&logoColor=white)
 
+![Version](https://img.shields.io/github/v/release/Aector84/ThinkTemp)
+
+## Install Specific Version
+
+git clone https://github.com/Aector84/ThinkTemp.git
+cd ThinkTemp
+git checkout v1.0.2
 
 # 🧊 ThinkTemp
 **Terminal fan controller & temperature monitor for ThinkPad laptops on Linux**
