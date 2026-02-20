@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import glob
 import time
 import termios
 import tty
@@ -18,11 +19,9 @@ from rich.padding import Padding
 
 FAN_PATH = "/proc/acpi/ibm/fan"
 DEFAULT_THRESHOLD = 80
+VERSION = "1.1.0"
 
 console = Console()
-<<<<<<< HEAD
-=======
->>>>>>> cf8ff60 (Remove watchdog logic after Fedora kernel update; restore stable fan control)
 
 ASCII_BANNER = Text(
 """████████╗██╗  ██╗██╗███╗   ██╗██╗  ██╗████████╗███████╗███╗   ███╗██████╗
@@ -54,6 +53,19 @@ def get_fan_info():
     return speed, level
 
 
+def get_hwmon_fans():
+    fans = []
+    for path in glob.glob("/sys/class/hwmon/hwmon*/fan*_input"):
+        try:
+            with open(path) as f:
+                rpm = f.read().strip()
+                if rpm and rpm != "0":
+                    fans.append(rpm)
+        except:
+            pass
+    return fans
+
+
 def get_cpu_temp():
     output = subprocess.check_output(["sensors"]).decode()
     for line in output.splitlines():
@@ -68,7 +80,6 @@ def build_layout(threshold):
 
     # Safety fallback
     if temp >= threshold:
-        write_fan("watchdog 0")
         write_fan("level auto")
         level = "auto"
 
@@ -80,13 +91,17 @@ def build_layout(threshold):
 
     status = Table.grid(padding=1)
     status.add_row("CPU Temp:", f"[{color}]{temp:.1f} °C[/]")
-    status.add_row("Fan Speed:", f"{speed} RPM")
+
+    hwmon_fans = get_hwmon_fans()
+
+    if len(hwmon_fans) > 1:
+        for i, rpm in enumerate(hwmon_fans, 1):
+            status.add_row(f"Fan {i}:", f"{rpm} RPM")
+    else:
+        status.add_row("Fan Speed:", f"{speed} RPM")
+
     status.add_row("Fan Level:", level)
     status.add_row("Fallback:", f"{threshold} °C")
-<<<<<<< HEAD
-    status.add_row("Watchdog:", "Disabled")
-=======
->>>>>>> cf8ff60 (Remove watchdog logic after Fedora kernel update; restore stable fan control)
 
     status_panel = Panel(status, title="Status", expand=False)
 
@@ -118,13 +133,6 @@ def build_layout(threshold):
 
 def main():
     require_root()
-<<<<<<< HEAD
-
-    # Always disable watchdog at startup
-    write_fan("watchdog 0")
-
-=======
->>>>>>> cf8ff60 (Remove watchdog logic after Fedora kernel update; restore stable fan control)
     threshold = DEFAULT_THRESHOLD
 
     fd = sys.stdin.fileno()
@@ -140,28 +148,17 @@ def main():
                     key = sys.stdin.read(1)
 
                     if key == "q":
-                        write_fan("watchdog 0")
                         write_fan("level auto")
                         break
-
                     elif key == "a":
-                        write_fan("watchdog 0")
                         write_fan("level auto")
-
                     elif key in "01234567":
-                        write_fan("watchdog 0")
                         write_fan(f"level {key}")
-
                     elif key == "s":
-                        write_fan("watchdog 0")
                         write_fan("level 1")
-
                     elif key == "b":
-                        write_fan("watchdog 0")
                         write_fan("level 3")
-
                     elif key == "p":
-                        write_fan("watchdog 0")
                         write_fan("level 6")
 
                 time.sleep(0.1)
@@ -176,4 +173,3 @@ if __name__ == "__main__":
         sys.exit(0)
 
     main()
-
