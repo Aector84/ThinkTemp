@@ -16,7 +16,7 @@ ThinkTemp provides live temperature monitoring and manual fan control directly f
 
 git clone https://github.com/Aector84/ThinkTemp.git
 cd ThinkTemp
-git checkout v1.0.2
+git checkout v1.1.0
 
 # 🧊 ThinkTemp
 **Terminal fan controller & temperature monitor for ThinkPad laptops on Linux**
